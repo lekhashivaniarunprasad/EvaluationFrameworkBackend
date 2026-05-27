@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+.env.local
+.env.example
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code settings
+.vscode/
+
+# DeepEval local config (machine-specific)
+.deepeval/
+
+# SQLite databases (e.g. TruLens)
+*.sqlite
+*.db
+
+# macOS system files
+.DS_Store
