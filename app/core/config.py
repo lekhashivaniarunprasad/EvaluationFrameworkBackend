@@ -1,22 +1,25 @@
 import os
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from databases import Database
 from sqlalchemy import create_engine, MetaData
+
+# load_dotenv()
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
 
-    DB_NAME: str
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_HOST: str
-    DB_PORT: int
-    SECRET_KEY: str
+    DB_NAME: str = "appdb"
+    DB_USER: str = "admin"
+    DB_PASSWORD: str = "admin"
+    DB_HOST: str = "postgres-0.postgres-hl.default.svc.cluster.local"
+    DB_PORT: int = 5432
+    SECRET_KEY: str = "c06c0f853fe20c9c9082ba5f61e0e97bbecf444f7bb5372c8d8bc5dbdc8e3d52"
     SESSION_EXPIRE_HOURS: int = 24
     APP_NAME: str = "LLM Eval Platform"
-    PWC_GENAI_API_KEY: str = ""
+    PWC_GENAI_API_KEY: str = "sk-SxXiWpNEB1MCA_yxD3eHiQ"
     PWC_GENAI_BASE_URL: str = "https://genai-sharedservice-americas.pwc.com"
     PWC_GENAI_MODEL: str = "vertex_ai.gemini-2.0-flash"
     PWC_GENAI_TIMEOUT_SECONDS: int = 300
