@@ -37,6 +37,11 @@ app.include_router(projects.router)
 app.include_router(evaluate.router)
 
 
+@app.get("/")
+async def root():
+    return {"message": "Backend is running"}
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
