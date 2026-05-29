@@ -23,7 +23,7 @@ config = project row from DB (dict), contains:
 
 Results are stored in evaluation_runs table via database.execute().
 
-.env required:
+Environment variables required:
     VERTEX_API_KEY=your_key
     VERTEX_API_BASE=https://your-proxy-url.com
 """
@@ -44,8 +44,6 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
-from dotenv import load_dotenv
-load_dotenv()
 
 # Keep DeepEval from auto-opening Confident AI in a browser after evaluation.
 os.environ.setdefault('CONFIDENT_OPEN_BROWSER', '0')
@@ -91,7 +89,7 @@ if _confident_api_key:
     except Exception as _e:
         print(f"[DeepEval] Confident AI login warning: {_e}")
 else:
-    print("[DeepEval] Warning: CONFIDENT_AI_API_KEY not set in .env — dashboard URL will be null")
+    print("[DeepEval] Warning: CONFIDENT_AI_API_KEY not set in environment — dashboard URL will be null")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -110,9 +108,9 @@ class VertexProxyModel(DeepEvalBaseLLM):
         self.api_key  = os.getenv("VERTEX_API_KEY")
         self.api_base = os.getenv("VERTEX_API_BASE")
         if not self.api_key:
-            raise ValueError("VERTEX_API_KEY not set in .env")
+            raise ValueError("VERTEX_API_KEY not set in environment")
         if not self.api_base:
-            raise ValueError("VERTEX_API_BASE not set in .env")
+            raise ValueError("VERTEX_API_BASE not set in environment")
 
     def get_model_name(self) -> str:
         return "vertex_ai.gemini-2.0-flash"
@@ -565,7 +563,7 @@ def _run_all_turns(
             dashboard_url = f"https://app.confident-ai.com/test-runs/{test_run_id}"
             print(f"[DeepEval] Built dashboard URL from test_run_id: {dashboard_url}")
         else:
-            print(f"[DeepEval] Warning: No dashboard URL found — check CONFIDENT_AI_API_KEY in .env")
+            print(f"[DeepEval] Warning: No dashboard URL found — check CONFIDENT_AI_API_KEY in environment")
 
     # ── Measure each turn explicitly using that turn's retrieval_context.
     # DeepEval metric objects store score/reason state, so each metric instance

@@ -39,7 +39,7 @@ Metrics evaluated (all between 0.0 – 1.0, pass threshold = 0.5):
 
 TruLens normalises its internal 0-3 integer scale to 0-1 floats automatically.
 
-.env required:
+Environment variables required:
     PWC_GENAI_API_KEY=your_key
     PWC_GENAI_BASE_URL=https://your-proxy-url.com
     PWC_GENAI_MODEL=vertex_ai.gemini-2.0-flash
@@ -60,9 +60,6 @@ import requests
 import ssl
 import urllib3
 import warnings
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # ── Corporate SSL bypass ──────────────────────────────────────────────────────
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -220,8 +217,8 @@ class PwCGenAIClient:
 
         if not self.api_key:
             raise ValueError(
-                "PWC_GENAI_API_KEY is not set in .env. "
-                "Please add it and restart the server."
+                "PWC_GENAI_API_KEY is not set in environment. "
+                "Please set it and restart the server."
             )
         print(f"  [PwC] Client initialised — model: {self.model}")
 

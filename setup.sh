@@ -45,46 +45,40 @@ echo ""
 echo "   To use the Confident AI dashboard:"
 echo "   1. Go to https://app.confident-ai.com and create a free account"
 echo "   2. Create a project and copy your API key from Settings → API Keys"
-echo "   3. Add it to your .env file: CONFIDENT_AI_API_KEY=your_key_here"
+echo "   3. Set it in your environment: CONFIDENT_AI_API_KEY=your_key_here"
 echo "   4. Run the command below to register it with DeepEval:"
 echo ""
 echo "      source venv/bin/activate"
 echo "      python3 -c \""
 echo "      from deepeval.key_handler import KEY_FILE_HANDLER, KeyValues"
 echo "      import os"
-echo "      from dotenv import load_dotenv"
-echo "      load_dotenv()"
 echo "      key = os.getenv('CONFIDENT_AI_API_KEY')"
 echo "      if key:"
 echo "          KEY_FILE_HANDLER.write_key(KeyValues.CONFIDENT_API_KEY, key)"
 echo "          print('✅ Confident AI key registered successfully')"
 echo "      else:"
-echo "          print('❌ CONFIDENT_AI_API_KEY not found in .env')"
+echo "          print('❌ CONFIDENT_AI_API_KEY not found in environment')"
 echo "      \""
 echo ""
 
-# ── Step 5: Auto-register Confident AI key if already in .env ────────────────
-if [ -f ".env" ]; then
-    source venv/bin/activate
-    python3 - << 'PYEOF'
+# ── Step 5: Auto-register Confident AI key if already in environment ─────────
+source venv/bin/activate
+python3 - << 'PYEOF'
 import os
-from dotenv import load_dotenv
-load_dotenv()
 
 key = os.getenv("CONFIDENT_AI_API_KEY")
 if key and key != "your_confident_ai_api_key_here":
     try:
         from deepeval.key_handler import KEY_FILE_HANDLER, KeyValues
         KEY_FILE_HANDLER.write_key(KeyValues.CONFIDENT_API_KEY, key)
-        print("✅ Confident AI API key registered automatically from .env")
+        print("✅ Confident AI API key registered automatically from environment")
     except Exception as e:
         print(f"⚠️  Could not register Confident AI key: {e}")
-        print("   Run the manual command above after filling in your .env")
+        print("   Run the manual command above after setting CONFIDENT_AI_API_KEY")
 else:
-    print("⚠️  CONFIDENT_AI_API_KEY not set in .env yet")
-    print("   Add your key to .env and re-run: python3 setup_confident_ai.py")
+    print("⚠️  CONFIDENT_AI_API_KEY not set in environment yet")
+    print("   Set CONFIDENT_AI_API_KEY and re-run: python3 setup_confident_ai.py")
 PYEOF
-fi
 
 echo ""
 echo "================================================"

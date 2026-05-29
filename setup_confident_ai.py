@@ -9,26 +9,23 @@ Usage:
     python3 setup_confident_ai.py
 
 Prerequisites:
-    1. Add CONFIDENT_AI_API_KEY to your .env file
+    1. Set CONFIDENT_AI_API_KEY in your environment
        Get your key from: https://app.confident-ai.com → Settings → API Keys
 """
 
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 key = os.getenv("CONFIDENT_AI_API_KEY")
 
 if not key or key == "your_confident_ai_api_key_here":
     print()
-    print("❌ CONFIDENT_AI_API_KEY not found or not set in .env")
+    print("❌ CONFIDENT_AI_API_KEY not found or not set in environment")
     print()
     print("Steps:")
     print("  1. Go to https://app.confident-ai.com")
     print("  2. Sign up / log in → create a project")
     print("  3. Go to Settings → API Keys → copy your key")
-    print("  4. Add to .env:  CONFIDENT_AI_API_KEY=your_key_here")
+    print("  4. Export it:  CONFIDENT_AI_API_KEY=your_key_here")
     print("  5. Re-run: python3 setup_confident_ai.py")
     print()
     exit(1)
@@ -55,4 +52,4 @@ except Exception as e:
     print(f"❌ Error registering key: {e}")
     print()
     print("Try setting it via environment variable instead:")
-    print("  Add to .env:  CONFIDENT_API_KEY=your_key_here")
+    print("  CONFIDENT_API_KEY=your_key_here")

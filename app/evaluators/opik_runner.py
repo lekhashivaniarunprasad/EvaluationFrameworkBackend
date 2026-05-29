@@ -25,9 +25,6 @@ os.environ["OPIK_CHECK_TLS_CERTIFICATE"] = "false"
 
 import urllib3
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # ── Corporate SSL bypass ──────────────────────────────────────────────────────
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -290,8 +287,8 @@ class PwCGenAIClient:
 
         if not self.api_key:
             raise ValueError(
-                "PWC_GENAI_API_KEY is not set in .env. "
-                "Please add it and restart the server."
+                "PWC_GENAI_API_KEY is not set in environment. "
+                "Please set it and restart the server."
             )
         print(f"  [PwC] Client initialised — model: {self.model}")
 
