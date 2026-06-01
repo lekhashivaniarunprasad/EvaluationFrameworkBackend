@@ -19,6 +19,7 @@ import ssl
 import asyncio
 import traceback
 import warnings
+import time
 
 # ── MUST be set before any opik import so httpx client picks it up ────────────
 os.environ["OPIK_CHECK_TLS_CERTIFICATE"] = "false"
@@ -75,6 +76,8 @@ DEFAULT_METRICS = [
     "custom_metric",
 ]
 
+PENDING_OPIK_PROJECT_ID_PREFIX = "pending:"
+
 
 def _normalize_context(context):
     if context is None:
@@ -109,10 +112,21 @@ async def setup_project(project_id: str, project_name: str) -> dict:
     if not settings.OPIK_API_KEY or not settings.OPIK_WORKSPACE:
         raise ValueError("OPIK_API_KEY and OPIK_WORKSPACE must be configured.")
 
-    opik_project_name, opik_project_id = await asyncio.get_event_loop().run_in_executor(
-        None,
-        lambda: _create_opik_project(project_id, project_name),
-    )
+    try:
+        opik_project_name, opik_project_id = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: _create_opik_project(project_id, project_name),
+        )
+    except Exception as exc:
+        if not _is_transient_opik_network_error(exc):
+            raise
+
+        opik_project_name = _build_opik_project_name(project_id, project_name)
+        opik_project_id = f"{PENDING_OPIK_PROJECT_ID_PREFIX}{project_id}"
+        print(
+            "[OpikRunner] ⚠️ Opik project setup could not reach Comet/Opik. "
+            f"Saving pending mapping for '{opik_project_name}': {exc}"
+        )
 
     existing = await database.fetch_one(
         "SELECT id FROM framework_projects WHERE id = :id",
@@ -160,6 +174,8 @@ async def setup_project(project_id: str, project_name: str) -> dict:
 def get_dashboard_url(framework_project_id: str) -> str:
     """Builds the correct Opik dashboard URL from the stored project ID."""
     workspace = settings.OPIK_WORKSPACE
+    if str(framework_project_id or "").startswith(PENDING_OPIK_PROJECT_ID_PREFIX):
+        return ""
     if workspace and framework_project_id:
         return (
             f"https://www.comet.com/opik/{workspace}/projects/"
@@ -172,23 +188,73 @@ def get_dashboard_url(framework_project_id: str) -> str:
 # PRIVATE — Opik project creation via REST API
 # ══════════════════════════════════════════════════════════════════════════════
 
+def _build_opik_project_name(platform_project_id: str, platform_project_name: str) -> str:
+    short_id = platform_project_id[:8]
+    return f"{platform_project_name} ({short_id})"
+
+
+def _is_transient_opik_network_error(exc: Exception) -> bool:
+    if isinstance(
+        exc,
+        (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+            requests.exceptions.ChunkedEncodingError,
+            TimeoutError,
+            ConnectionError,
+            OSError,
+        ),
+    ):
+        return True
+
+    message = str(exc).lower()
+    transient_markers = (
+        "network error",
+        "connection reset",
+        "connection aborted",
+        "remote end closed connection",
+        "max retries exceeded",
+        "read timed out",
+        "connect timed out",
+        "temporarily unavailable",
+        "bad gateway",
+        "opik api returned 5",
+    )
+    return any(marker in message for marker in transient_markers)
+
+
+def _opik_request(method: str, url: str, **kwargs) -> requests.Response:
+    last_exc = None
+    for attempt in range(1, 4):
+        try:
+            response = requests.request(method, url, **kwargs)
+            if response.status_code < 500:
+                return response
+            last_exc = RuntimeError(
+                f"Opik API returned {response.status_code}: {response.text[:200]}"
+            )
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+            requests.exceptions.ChunkedEncodingError,
+        ) as exc:
+            last_exc = exc
+
+        if attempt < 3:
+            time.sleep(0.75 * attempt)
+
+    if isinstance(last_exc, Exception):
+        raise last_exc
+    raise RuntimeError("Opik API request failed without a response.")
+
+
 def _create_opik_project(platform_project_id: str, platform_project_name: str) -> tuple:
     """
     Creates a new Opik project via REST API.
     Project name = user's project name + short ID for uniqueness.
     Returns (opik_project_name, opik_project_id)
     """
-    import opik
-
-    short_id     = platform_project_id[:8]
-    project_name = f"{platform_project_name} ({short_id})"
-
-    opik.configure(
-        api_key   = settings.OPIK_API_KEY,
-        workspace = settings.OPIK_WORKSPACE,
-        use_local = False,
-        force     = True,
-    )
+    project_name = _build_opik_project_name(platform_project_id, platform_project_name)
 
     base_url = "https://www.comet.com/opik/api"
     headers  = {
@@ -198,7 +264,8 @@ def _create_opik_project(platform_project_id: str, platform_project_name: str) -
     }
 
     def _fetch_project_id(name: str):
-        resp = requests.get(
+        resp = _opik_request(
+            "GET",
             f"{base_url}/v1/private/projects",
             headers = headers,
             params  = {"page": 1, "size": 100},
@@ -220,13 +287,21 @@ def _create_opik_project(platform_project_id: str, platform_project_name: str) -
         return project_name, str(existing_id)
 
     # Create
-    resp = requests.post(
-        f"{base_url}/v1/private/projects",
-        headers = headers,
-        json    = {"name": project_name},
-        timeout = 30,
-        verify  = False,
-    )
+    try:
+        resp = _opik_request(
+            "POST",
+            f"{base_url}/v1/private/projects",
+            headers = headers,
+            json    = {"name": project_name},
+            timeout = 30,
+            verify  = False,
+        )
+    except Exception:
+        project_id = _fetch_project_id(project_name)
+        if project_id:
+            print(f"  [Opik] ✅ Created + fetched after retry: '{project_name}' id={project_id}")
+            return project_name, str(project_id)
+        raise
 
     print(f"  [Opik] Create response: {resp.status_code} | body: '{resp.text[:100]}'")
 
@@ -993,3 +1068,5 @@ async def run_opik(
 
     print(f"\n[OpikRunner] ✅ Complete — dashboard: {dashboard_url}")
     return dashboard_url, (first_trace_id or run_id)
+
+
