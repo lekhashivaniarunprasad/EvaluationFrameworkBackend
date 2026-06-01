@@ -105,12 +105,14 @@ class VertexProxyModel(DeepEvalBaseLLM):
     """
 
     def __init__(self):
-        self.api_key  = os.getenv("VERTEX_API_KEY")
-        self.api_base = os.getenv("VERTEX_API_BASE")
+        self.api_key = os.getenv("VERTEX_API_KEY") or settings.VERTEX_API_KEY
+        self.api_base = os.getenv("VERTEX_API_BASE") or settings.VERTEX_API_BASE.rstrip("/")
         if not self.api_key:
             raise ValueError("VERTEX_API_KEY not set in environment")
         if not self.api_base:
             raise ValueError("VERTEX_API_BASE not set in environment")
+        os.environ.setdefault("VERTEX_API_KEY", self.api_key)
+        os.environ.setdefault("VERTEX_API_BASE", self.api_base)
 
     def get_model_name(self) -> str:
         return "vertex_ai.gemini-2.0-flash"

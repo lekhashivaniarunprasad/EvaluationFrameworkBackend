@@ -68,7 +68,10 @@ async def _run_framework_project_setup(
 
     except Exception as e:
         print(f"[Projects] ⚠️  Framework setup failed for '{framework}': {e}")
-        raise
+        raise HTTPException(
+            status_code=502,
+            detail=f"Framework setup failed for '{framework}': {e}",
+        )
 
     return result
 

@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from databases import Database
 from sqlalchemy import create_engine, MetaData
 
-load_dotenv()
+# load_dotenv()
 
 
 class Settings(BaseSettings):
