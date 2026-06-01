@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from databases import Database
 from sqlalchemy import create_engine, MetaData
 
-# load_dotenv()
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     PWC_GENAI_MODEL: str = "vertex_ai.gemini-2.0-flash"
     PWC_GENAI_TIMEOUT_SECONDS: int = 300
     OPIK_PROJECT_NAME: str = "Default Project"
+    VERTEX_API_KEY: str = "sk-SxXiWpNEB1MCA_yxD3eHiQ" 
+    VERTEX_API_BASE: str = "https://genai-sharedservice-americas.pwc.com/completions"
     # Arize Phoenix
     # PHOENIX_API_KEY:  str = "ak-c8469f94-e65b-4d10-b737-4edfcad54200-HjWsz1Alwe5GHnurOWIn5kgaZRW5bl1b"
     # PHOENIX_SPACE_ID: str = "U3BhY2U6NDA2MzY6TGV2Vg=="
@@ -31,8 +33,8 @@ class Settings(BaseSettings):
     ARIZE_SPACE_ID: str = "U3BhY2U6NDE5OTY6WGNIdg=="
     ARIZE_API_KEY:  str = "ak-c0c0f8d8-eac7-4523-b202-4f06dcf54bb5-T0gO3oizdlta382oU8Es06L7pEC5jRT2"
     # Opik
-    OPIK_API_KEY: str = ""
-    OPIK_WORKSPACE: str = ""
+    OPIK_API_KEY: str = "3E3x9LG59yUAA7mpPexGB3UEA"
+    OPIK_WORKSPACE: str = "rachelcn"
 
     def __init__(self, **values):
         env_values = {
@@ -49,6 +51,9 @@ class Settings(BaseSettings):
             "PWC_GENAI_MODEL": os.getenv("PWC_GENAI_MODEL"),
             "PWC_GENAI_TIMEOUT_SECONDS": os.getenv("PWC_GENAI_TIMEOUT_SECONDS"),
             "OPIK_PROJECT_NAME": os.getenv("OPIK_PROJECT_NAME"),
+            "VERTEX_API_KEY": os.getenv("VERTEX_API_KEY"),
+            "VERTEX_API_BASE": os.getenv("VERTEX_API_BASE"),
+            "PWC_GENAI_BASE_URL": os.getenv("PWC_GENAI_BASE_URL"),
             "ARIZE_SPACE_ID": os.getenv("ARIZE_SPACE_ID"),
             "ARIZE_API_KEY": os.getenv("ARIZE_API_KEY"),
             "OPIK_API_KEY": os.getenv("OPIK_API_KEY"),
