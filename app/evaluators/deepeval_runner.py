@@ -727,7 +727,7 @@ async def run_deepeval(
         )
 
     # Return Confident AI URL if available, otherwise fall back to internal status URL
-    returned_dashboard_url = confident_dashboard_url or f"http://localhost:8000/evaluate/run/{run_id}/status"
+    returned_dashboard_url = confident_dashboard_url or f"https://etlab-projects.pwc.in/evalforge-be/evaluate/run/{run_id}/status"
     external_run_id        = run_id
 
     return returned_dashboard_url, external_run_id

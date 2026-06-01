@@ -157,7 +157,7 @@ async def select_framework(
         "framework":    body.framework,
         "api_key":      short_id,
         "api_endpoint": api_endpoint,
-        "full_url":     f"http://localhost:8000/evaluate{api_endpoint}",
+        "full_url":     f"https://etlab-projects.pwc.in/evalforge-be/evaluate{api_endpoint}",
         "message":      "Framework selected. Your unique evaluation endpoint is ready.",
     }
 
@@ -216,7 +216,7 @@ async def get_project(project_id: str, current_user=Depends(get_session_user)):
 
     if project.get("api_key") and project.get("framework") and project["framework"] != "pending":
         project["api_endpoint"] = f"/{project['framework']}/{project['api_key']}"
-        project["full_url"]     = f"http://localhost:8000/evaluate{project['api_endpoint']}"
+        project["full_url"]     = f"https://etlab-projects.pwc.in/evalforge-be/evaluate{project['api_endpoint']}"
 
     # Build dashboard URL via the framework runner
     if project.get("framework") == "opik" and project.get("framework_project_id"):
