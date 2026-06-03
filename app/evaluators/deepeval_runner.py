@@ -115,7 +115,7 @@ class VertexProxyModel(DeepEvalBaseLLM):
         os.environ.setdefault("VERTEX_API_BASE", self.api_base)
 
     def get_model_name(self) -> str:
-        return "vertex_ai.gemini-2.0-flash"
+        return "azure.gpt-4o"
 
     def load_model(self):
         return self
@@ -130,7 +130,7 @@ class VertexProxyModel(DeepEvalBaseLLM):
                 "Content-Type"  : "application/json",
             },
             json = {
-                "model"            : "vertex_ai.gemini-2.0-flash",
+                "model"            : "azure.gpt-4o",
                 "prompt"           : prompt,
                 "temperature"      : 0.0,
                 "top_p"            : 1,

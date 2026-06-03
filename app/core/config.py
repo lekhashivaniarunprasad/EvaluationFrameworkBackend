@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "LLM Eval Platform"
     PWC_GENAI_API_KEY: str = "sk-SxXiWpNEB1MCA_yxD3eHiQ"
     PWC_GENAI_BASE_URL: str = "https://genai-sharedservice-americas.pwc.com"
-    PWC_GENAI_MODEL: str = "vertex_ai.gemini-2.0-flash"
+    PWC_GENAI_MODEL: str = "azure.gpt-4o"
     PWC_GENAI_TIMEOUT_SECONDS: int = 300
     OPIK_PROJECT_NAME: str = "Default Project"
     VERTEX_API_KEY: str = "sk-SxXiWpNEB1MCA_yxD3eHiQ" 
